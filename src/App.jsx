@@ -1,68 +1,70 @@
-```jsx
-import React from 'react';
-
-const data = [
-  {
-    fixture: "Chicago Fire II vs Columbus Crew II",
-    bet: "Chicago Fire II -1.0 AH",
-    confidence: 0.93,
-    odds: 1.90,
-    framework: "Bayesian Updating"
-  },
-  {
-    fixture: "Philadelphia Union II vs FC Cincinnati II",
-    bet: "Philadelphia Union II -1.0 AH",
-    confidence: 0.91,
-    odds: 1.85,
-    framework: "Contrarian Sentiment + Form Filter"
-  },
-  {
-    fixture: "Orlando City B vs NYCFC II",
-    bet: "Over 2.5 Goals",
-    confidence: 0.89,
-    odds: 1.78,
-    framework: "xG Disparity Mapping"
-  },
-  {
-    fixture: "North Texas vs Colorado Rapids II",
-    bet: "North Texas HT/FT Win",
-    confidence: 0.87,
-    odds: 2.10,
-    framework: "Tactical Archetype Clustering"
-  }
-];
+import React, { useState } from 'react';
 
 function App() {
-  const totalOdds = data.reduce((acc, leg) => acc * leg.odds, 1).toFixed(2);
-  const projectedWinRate = (data.reduce((acc, leg) => acc * leg.confidence, 1) * 100).toFixed(1);
+  const [parlay, setParlay] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+
+  const fetchParlay = async () => {
+    const response = await fetch('https://your-backend-url.com/api/parlay');
+    const data = await response.json();
+    setSuggestions(data.suggestions);
+  };
+
+  const addToParlay = (leg) => {
+    if (!parlay.includes(leg)) {
+      setParlay([...parlay, leg]);
+    }
+  };
+
+  const removeLeg = (leg) => {
+    setParlay(parlay.filter(item => item !== leg));
+  };
 
   return (
-    <div className="min-h-screen p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        MLSPoBot Parlay Optimizer
-      </h1>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">MLSPoBot Parlay Optimizer</h1>
+      <button
+        onClick={fetchParlay}
+        className="mb-4 bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Fetch Suggestions
+      </button>
 
-      <div className="space-y-4">
-        {data.map((leg, idx) => (
-          <div key={idx} className="bg-white p-4 rounded-2xl shadow">
-            <h2 className="font-semibold">{leg.fixture}</h2>
-            <p>Bet: {leg.bet}</p>
-            <p>Confidence: {(leg.confidence * 100).toFixed(1)}%</p>
-            <p>Edge: {leg.framework}</p>
-            <p>Odds: {leg.odds}</p>
-          </div>
-        ))}
+      <div>
+        <h2 className="text-lg font-semibold">Suggested Legs</h2>
+        <ul className="mb-4">
+          {suggestions.map((leg, idx) => (
+            <li key={idx} className="flex justify-between items-center border-b py-2">
+              {leg}
+              <button
+                onClick={() => addToParlay(leg)}
+                className="bg-green-500 text-white px-2 py-1 rounded"
+              >
+                Add
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <div className="mt-6 bg-yellow-100 p-4 rounded-xl text-center">
-        <p className="font-bold">Total Odds: {totalOdds}</p>
-        <p className="font-bold">Projected Win Rate: {projectedWinRate}%</p>
+      <div>
+        <h2 className="text-lg font-semibold">Your Parlay</h2>
+        <ul>
+          {parlay.map((leg, idx) => (
+            <li key={idx} className="flex justify-between items-center border-b py-2">
+              {leg}
+              <button
+                onClick={() => removeLeg(leg)}
+                className="bg-red-500 text-white px-2 py-1 rounded"
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 }
 
 export default App;
-```
-
----
