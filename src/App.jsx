@@ -5,7 +5,7 @@ function App() {
   const [suggestions, setSuggestions] = useState([]);
 
   const fetchParlay = async () => {
-    const response = await fetch('https://your-backend-url.com/api/parlay');
+    const response = await fetch('https://mlspobot-backend.onrender.com/api/parlay');
     const data = await response.json();
     setSuggestions(data.suggestions);
   };
